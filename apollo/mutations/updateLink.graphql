@@ -1,0 +1,5 @@
+mutation($description: String!) {
+  post(description: $description) {
+    id
+  }
+}
