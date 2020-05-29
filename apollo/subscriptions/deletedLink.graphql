@@ -1,0 +1,6 @@
+subscription {
+  deletedLink {
+    id
+    description
+  }
+}
