@@ -1,0 +1,5 @@
+mutation($description: String!) {
+  createLink(description: $description) {
+    id
+  }
+}

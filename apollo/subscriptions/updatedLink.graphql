@@ -1,0 +1,6 @@
+subscription {
+  updatedLink {
+    id
+    description
+  }
+}
