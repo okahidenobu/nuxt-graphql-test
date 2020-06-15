@@ -42,9 +42,7 @@ export default {
       "@nuxtjs/dotenv",
       {
         filename:
-          process.env.NODE_ENV !== "production"
-            ? ".env.dev"
-            : ".env.prod"
+          process.env.NODE_ENV !== "production" ? ".env.dev" : ".env.prod"
       }
     ]
   ],
@@ -61,5 +59,9 @@ export default {
      ** You can extend webpack config here
      */
     extend(config, ctx) {}
+  },
+  server: {
+    port: 8000, // デフォルト: 3000
+    host: "0.0.0.0" // デフォルト: localhost
   }
 };
