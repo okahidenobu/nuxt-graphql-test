@@ -1,0 +1,7 @@
+mutation($id: Int!) {
+  deleteUser(id: $id) {
+    id
+    firstName
+    lastName
+  }
+}

@@ -1,91 +1,91 @@
 <template>
   <div>
-    <h3>link.description list from node gql server</h3>
-    <!--    <ul v-if="feed">-->
     <ul>
-      <li v-for="item in feed" :key="item.id">
-        {{ item.description }}
-        <button @click="deleteLink(item.id)">delete</button>
-        <button @click="updateLink(item.id, 'updated')">update</button>
+      <li v-for="item in getUsers" :key="item.id">
+        {{ item.firstName }}
+        <button @click="deleteUser(item.id)">delete</button>
+        <button @click="updateUser(item.id, 'updated', '')">update</button>
       </li>
     </ul>
-    <!--    <pre>{{ feed }}</pre>-->
     <form @click.prevent>
-      description :
-      <input type="text" v-model="description" />
-      <button @click="post">post</button>
+      name :
+      <input type="text" v-model="firstName" />
+      <button @click="addUser">post</button>
     </form>
   </div>
 </template>
 
 <script>
-import getLinks from "~/apollo/queries/getLinks.graphql";
-import createLink from "~/apollo/mutations/createLink.graphql";
-import deleteLink from "~/apollo/mutations/deleteLink.graphql";
-import updateLink from "~/apollo/mutations/updateLink.graphql";
-import newLink from "~/apollo/subscriptions/newLink.graphql";
-import updatedLink from "~/apollo/subscriptions/updatedLink.graphql";
-import deletedLink from "~/apollo/subscriptions/deletedLink.graphql";
+import fetchUsers from "~/apollo/queries/getUsers.graphql";
+import addUser from "~/apollo/mutations/addUser.graphql";
+import deleteUser from "~/apollo/mutations/deleteUser.graphql";
+import updateUser from "~/apollo/mutations/updateUser.graphql";
+import userAdded from "~/apollo/subscriptions/userAdded.graphql";
+import userUpdated from "~/apollo/subscriptions/userUpdated.graphql";
+import userDeleted from "~/apollo/subscriptions/userDeleted.graphql";
 
 export default {
   data() {
     return {
-      feed: [],
-      url: "",
-      description: ""
+      user: [],
+      firstName: "",
+      lastName: ""
     };
   },
 
   apollo: {
-    feed: {
+    getUsers: {
       //queryでデータを取得している部分
-      query: getLinks,
+      query: fetchUsers,
 
       //subscriptionsの実装部分
       subscribeToMore: [
         {
           //subscriptionのクエリ
-          document: newLink,
+          document: userAdded,
           // 元のデータを更新する処理
           updateQuery: (previousResult, { subscriptionData }) => {
             if (!subscriptionData.data) {
               return previousResult;
             }
             return {
-              feed: [...previousResult.feed, subscriptionData.data.newLink]
+              getUsers: [
+                ...previousResult.getUsers,
+                subscriptionData.data.userAdded
+              ]
             };
           }
         },
         {
           //subscriptionのクエリ
-          document: updatedLink,
+          document: userUpdated,
           // 元のデータを更新する処理
           updateQuery: (previousResult, { subscriptionData }) => {
             if (!subscriptionData.data) {
               return previousResult;
             }
-            const updatedLink = subscriptionData.data.updatedLink;
-            const targetUser = previousResult.feed.find(
-              link => link.id + "" === updatedLink.id + ""
+            const userUpdated = subscriptionData.data.userUpdated;
+            const targetUser = previousResult.getUsers.find(
+              link => link.id + "" === userUpdated.id + ""
             );
-            targetUser.description = updatedLink.description;
-            return previousResult.feed;
+            targetUser.firstName = userUpdated.firstName;
+            return previousResult.getUsers;
           }
         },
         {
-          document: deletedLink,
+          document: userDeleted,
           updateQuery: (prev, { subscriptionData }) => {
             if (!subscriptionData.data) {
               return prev;
             }
 
-            const deletedLink = subscriptionData.data.deletedLink;
-            const linkIndex = prev.feed.findIndex(
-              link => link.id + "" === deletedLink.id + ""
+            const userDeleted = subscriptionData.data.userDeleted;
+            const linkIndex = prev.getUsers.findIndex(
+              link => link.id + "" === userDeleted.id + ""
             );
 
-            prev.feed.splice(linkIndex, 1);
-            return prev.feed;
+            prev.getUsers.splice(linkIndex, 1);
+            return prev.getUsers;
           }
         }
       ]
@@ -93,41 +93,41 @@ export default {
   },
   methods: {
     //mutationで新しいデータを作成する処理
-    async post() {
+    async addUser() {
       // We save the user input in case of an error これはなくてもいいのか？
-      const description = this.description;
+      const firstName = this.firstName;
       // We clear it early to give the UI a snappy feel これもなくてもいいのか？
-      this.description = "";
+      this.firstName = "";
 
       //mutation実行処理
       await this.$apollo.mutate({
         //クエリ
-        mutation: createLink,
+        mutation: addUser,
         //変数
         variables: {
-          description: description
+          firstName: firstName
         }
       });
     },
 
-    async updateLink(id, description) {
+    async updateUser(id, firstName, lastName) {
       //mutation実行処理
       await this.$apollo.mutate({
         //クエリ
-        mutation: updateLink,
+        mutation: updateUser,
         //変数
         variables: {
           id: id,
-          description: description
+          firstName: firstName,
+          lastName: lastName
         }
       });
     },
-
-    async deleteLink(id) {
+    async deleteUser(id) {
       //mutation実行処理
       await this.$apollo.mutate({
         //クエリ
-        mutation: deleteLink,
+        mutation: deleteUser,
         //変数
         variables: {
           id: id

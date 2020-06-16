@@ -1,6 +1,0 @@
-subscription {
-  newLink {
-    id
-    description
-  }
-}

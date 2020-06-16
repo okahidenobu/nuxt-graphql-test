@@ -1,6 +1,0 @@
-mutation($id: ID!, $description: String!) {
-  updateLink(id: $id, description: $description) {
-    id
-    description
-  }
-}

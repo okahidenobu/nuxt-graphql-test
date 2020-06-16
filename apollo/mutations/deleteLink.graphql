@@ -1,6 +1,0 @@
-mutation($id: ID!) {
-  deleteLink(id: $id) {
-    id
-    description
-  }
-}
